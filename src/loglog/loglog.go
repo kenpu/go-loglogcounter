@@ -13,7 +13,7 @@ const (
     ALPHA = 0.39701
     BETA = 1.29806
 )
-func hashValue(s string) *big.Int {
+func HashValue(s string) *big.Int {
     var (
         h hash.Hash = md5.New()
         x []byte
@@ -25,18 +25,6 @@ func hashValue(s string) *big.Int {
     value.SetBytes(x)
     return value
 }
-
-func valueSplit(hv *big.Int, numBits int) (uint64, *big.Int) {
-    mask := new(big.Int)
-    for i:=0; i < numBits; i++ {
-        mask.SetBit(mask, i, 1)
-    }
-    mv := uint64(mask.And(mask, hv).Int64())
-    hv2 := new(big.Int).Rsh(hv, uint(numBits))
-
-    return mv, hv2
-}
-
 func rank(hv *big.Int) int {
     for i:=0; i < hv.BitLen(); i++ {
         if hv.Bit(i) > 0 {
@@ -45,7 +33,6 @@ func rank(hv *big.Int) int {
     }
     return MAX_LEN
 }
-
 func max(v1 int, vs ...int) (r int) {
     r = v1
     for _, v := range vs {
@@ -57,9 +44,29 @@ func max(v1 int, vs ...int) (r int) {
     return
 }
 
+type Entry struct {
+    MValue uint64
+    Rank int
+}
+
+func SetEntry(hv *big.Int, numBits int, entry *Entry) {
+    mask := new(big.Int)
+    for i:=0; i < numBits; i++ {
+        mask.SetBit(mask, i, 1)
+    }
+    mv := uint64(mask.And(mask, hv).Int64())
+    hv2 := new(big.Int).Rsh(hv, uint(numBits))
+
+    entry.MValue = mv
+    entry.Rank = rank(hv2)
+}
+
+
+
 type Counter struct {
     Table []int     // mValue -> rank
     MBits int       // bitlen of mValue
+    entry Entry     // entry
 }
 
 func NewCounter(mBits int) *Counter {
@@ -67,16 +74,20 @@ func NewCounter(mBits int) *Counter {
     t := Counter{
         make([]int, N),
         mBits,
+        Entry{0, 0},
     }
     return &t
 }
 
 
 func (counter *Counter) Digest(s string) {
-    hash := hashValue(s)
-    mvalue, hvalue := valueSplit(hash, counter.MBits)
-    rk := rank(hvalue)
-    counter.Table[mvalue] = max(counter.Table[mvalue], rk)
+    SetEntry(HashValue(s), counter.MBits, &counter.entry)
+    counter.DigestEntry(&counter.entry)
+    return
+}
+
+func (counter *Counter) DigestEntry(entry *Entry) {
+    counter.Table[entry.MValue] = max(counter.Table[entry.MValue], entry.Rank)
 
     return
 }

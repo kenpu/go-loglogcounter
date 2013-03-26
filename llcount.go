@@ -1,4 +1,4 @@
-package main 
+package main
 import (
     "fmt"
     "os"
@@ -8,7 +8,7 @@ import (
     "loglog"
 )
 func main() {
-    filename := os.Args[1]
+    filename := "pg100.txt"
 
     f, _ := os.Open(filename)
     reader := bufio.NewReader(f)
@@ -19,9 +19,7 @@ func main() {
     counter := loglog.NewCounter(12)
     for {
         line, err := reader.ReadString('\n')
-        if err != nil {
-            break
-        }
+        if err != nil { break }
         for _, word := range strings.Fields(line) {
             i += 1
             counter.Digest(word)

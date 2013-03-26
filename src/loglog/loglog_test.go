@@ -18,12 +18,8 @@ func Test_rank(t *testing.T) {
 }
 func Test_hash(t *testing.T) {
     s := "hello world"
-    hv := hashValue(s)
+    hv := HashValue(s)
     t.Logf("\"%s\" -> %d, with bitlen=%d\n", s, uint64(hv.Int64()), hv.BitLen())
-    mv, hv2 := valueSplit(hv, 10)
-    t.Logf("the first 10 bits are: %d\n", mv)
-    t.Logf("the reminder is: %d with bitlen=%d\n", uint64(hv2.Int64()), hv2.BitLen())
-    t.Logf("rank = %d\n", rank(hv2.Lsh(hv2, 4)))
 }
 
 func Test_Counter(t *testing.T) {
