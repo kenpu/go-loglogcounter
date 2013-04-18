@@ -7,10 +7,10 @@ import (
     "bufio"
     "fmt"
     "time"
+    "strconv"
 )
 
 const (
-    WORKERS = 8
     MBITS   = 12
 )
 
@@ -67,6 +67,15 @@ func scatter(in chan string, k int, counter *loglog.Counter) (chan *loglog.Entry
 }
 
 func main() {
+    var WORKERS int
+    if len(os.Args) < 2 {
+        fmt.Println("Usage default workers=8")
+        WORKERS = 8
+    } else {
+        i, _ := strconv.ParseInt(os.Args[1], 10, 32)
+        WORKERS = int(i)
+    }
+
     c := loglog.NewCounter(MBITS)
     filename := "pg100.txt"
     words := streamWords(filename)
