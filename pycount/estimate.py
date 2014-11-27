@@ -78,6 +78,11 @@ print "indexed %d files in %.2f seconds" % (len(filenames), dur)
 
 # Compute pairwise union:
 
+result = ["F1", "F2", "E1", "E2", "E", "M=%d" % k]
+print ",".join(result)
+
+start = time()
+i = 0
 for f1 in filenames:
     for f2 in filenames:
         if f1 < f2:
@@ -85,4 +90,10 @@ for f1 in filenames:
             e2 = tables[f2]["e"]
             e, t = estimate_union(tables[f1]["t"], tables[f2]["t"], k)
             sim = max(e1, e2)/e
-            print "(%s, %s): %.1f + %.1f > %.1f, sim = %.2f" % (f1, f2, e1, e2, e, sim)
+            result = [f1, f2, "%.1f" % e1, "%.1f" % e2, "%.1f" % e]
+
+            print ",".join(result)
+            i += 1
+
+dur = time() - start
+print "JOINED %d PAIRS IN %.4f seconds" % (i, dur)
